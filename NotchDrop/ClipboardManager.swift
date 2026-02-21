@@ -1,0 +1,283 @@
+import SwiftUI
+import UniformTypeIdentifiers
+
+struct ClipboardItem: Identifiable, Equatable {
+    let id = UUID()
+    let type: ItemType
+    let name: String
+    let url: URL?
+    let text: String?
+    let dateAdded: Date
+    let icon: NSImage?
+
+    enum ItemType {
+        case file
+        case url
+        case text
+    }
+
+    static func == (lhs: ClipboardItem, rhs: ClipboardItem) -> Bool {
+        lhs.id == rhs.id
+    }
+}
+
+class ClipboardManager: ObservableObject {
+    @Published var items: [ClipboardItem] = []
+
+    static let storageDirectory: URL = {
+        let documents = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
+        let dir = documents.appendingPathComponent("NotchDrop", isDirectory: true)
+        try? FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
+        return dir
+    }()
+
+    private static let imageExtensions: Set<String> = [
+        "jpg", "jpeg", "png", "gif", "webp", "bmp", "tiff", "tif", "svg", "heic", "heif", "ico", "avif"
+    ]
+
+    private var syncTimer: Timer?
+    private var autoClearTimer: Timer?
+
+    init() {
+        // Check every 3 seconds if files were deleted manually from the folder
+        syncTimer = Timer.scheduledTimer(withTimeInterval: 3.0, repeats: true) { [weak self] _ in
+            self?.syncWithFileSystem()
+        }
+
+        // Auto-clear everything after 10 minutes
+        startAutoClearTimer()
+    }
+
+    private func startAutoClearTimer() {
+        autoClearTimer?.invalidate()
+        autoClearTimer = Timer.scheduledTimer(withTimeInterval: 600, repeats: false) { [weak self] _ in
+            DispatchQueue.main.async {
+                self?.clearAll()
+            }
+        }
+    }
+
+    /// Remove items whose files no longer exist on disk
+    private func syncWithFileSystem() {
+        DispatchQueue.main.async { [weak self] in
+            guard let self else { return }
+            let before = self.items.count
+            self.items.removeAll { item in
+                if item.type == .file, let url = item.url {
+                    return !FileManager.default.fileExists(atPath: url.path)
+                }
+                return false
+            }
+            // Reset auto-clear timer if items changed
+            if self.items.count != before && !self.items.isEmpty {
+                self.startAutoClearTimer()
+            }
+        }
+    }
+
+    func addFile(_ url: URL) {
+        startAutoClearTimer() // Reset 10-min timer
+        let destination = Self.storageDirectory.appendingPathComponent(url.lastPathComponent)
+        let finalURL: URL
+        if FileManager.default.fileExists(atPath: destination.path) {
+            let name = url.deletingPathExtension().lastPathComponent
+            let ext = url.pathExtension
+            let uniqueName = "\(name)_\(Int(Date().timeIntervalSince1970)).\(ext)"
+            finalURL = Self.storageDirectory.appendingPathComponent(uniqueName)
+        } else {
+            finalURL = destination
+        }
+
+        do {
+            try FileManager.default.copyItem(at: url, to: finalURL)
+        } catch {
+            // If copy fails, reference original
+        }
+
+        let icon = NSWorkspace.shared.icon(forFile: url.path)
+        icon.size = NSSize(width: 40, height: 40)
+
+        let item = ClipboardItem(
+            type: .file,
+            name: url.lastPathComponent,
+            url: finalURL,
+            text: nil,
+            dateAdded: Date(),
+            icon: icon
+        )
+
+        items.insert(item, at: 0)
+
+        let pb = NSPasteboard.general
+        pb.clearContents()
+        pb.writeObjects([finalURL as NSURL])
+    }
+
+    /// Save raw image data (from browser drag) as a file
+    func addImageData(_ data: Data, suggestedName: String? = nil) {
+        startAutoClearTimer()
+        let name = suggestedName ?? "image_\(Int(Date().timeIntervalSince1970))"
+
+        // Detect image type from data
+        let ext = Self.detectImageExtension(from: data)
+        let fileName = name.hasSuffix(".\(ext)") ? name : "\(name).\(ext)"
+
+        var finalURL = Self.storageDirectory.appendingPathComponent(fileName)
+        if FileManager.default.fileExists(atPath: finalURL.path) {
+            let base = finalURL.deletingPathExtension().lastPathComponent
+            finalURL = Self.storageDirectory.appendingPathComponent("\(base)_\(Int(Date().timeIntervalSince1970)).\(ext)")
+        }
+
+        do {
+            try data.write(to: finalURL)
+        } catch {
+            return
+        }
+
+        // Create thumbnail for the icon
+        let icon: NSImage
+        if let nsImage = NSImage(data: data) {
+            let thumb = NSImage(size: NSSize(width: 40, height: 40))
+            thumb.lockFocus()
+            nsImage.draw(in: NSRect(x: 0, y: 0, width: 40, height: 40),
+                        from: NSRect(origin: .zero, size: nsImage.size),
+                        operation: .sourceOver, fraction: 1.0)
+            thumb.unlockFocus()
+            icon = thumb
+        } else {
+            icon = NSWorkspace.shared.icon(forFile: finalURL.path)
+            icon.size = NSSize(width: 40, height: 40)
+        }
+
+        let item = ClipboardItem(
+            type: .file,
+            name: fileName,
+            url: finalURL,
+            text: nil,
+            dateAdded: Date(),
+            icon: icon
+        )
+
+        items.insert(item, at: 0)
+
+        let pb = NSPasteboard.general
+        pb.clearContents()
+        pb.writeObjects([finalURL as NSURL])
+    }
+
+    /// Download image from a URL and save it
+    func addImageURL(_ url: URL) {
+        // Download in background
+        URLSession.shared.dataTask(with: url) { [weak self] data, response, error in
+            guard let self, let data, error == nil else { return }
+
+            // Get filename from URL or response
+            var fileName = url.lastPathComponent
+            if fileName.isEmpty || !fileName.contains(".") {
+                let ext = Self.detectImageExtension(from: data)
+                fileName = "image_\(Int(Date().timeIntervalSince1970)).\(ext)"
+            }
+            // Clean up query params from filename
+            if let qIndex = fileName.firstIndex(of: "?") {
+                fileName = String(fileName[..<qIndex])
+            }
+
+            DispatchQueue.main.async {
+                self.addImageData(data, suggestedName: fileName)
+            }
+        }.resume()
+    }
+
+    func addURL(_ url: URL) {
+        // Check if the URL points to an image — download it instead
+        let ext = url.pathExtension.lowercased()
+        let pathLower = url.absoluteString.lowercased()
+        if Self.imageExtensions.contains(ext) || pathLower.contains("image") && (pathLower.contains(".jpg") || pathLower.contains(".png") || pathLower.contains(".webp") || pathLower.contains(".jpeg")) {
+            addImageURL(url)
+            return
+        }
+
+        let item = ClipboardItem(
+            type: .url,
+            name: url.absoluteString,
+            url: url,
+            text: nil,
+            dateAdded: Date(),
+            icon: NSImage(systemSymbolName: "link", accessibilityDescription: nil)
+        )
+
+        items.insert(item, at: 0)
+
+        let pb = NSPasteboard.general
+        pb.clearContents()
+        pb.writeObjects([url as NSURL])
+    }
+
+    func addText(_ text: String) {
+        let item = ClipboardItem(
+            type: .text,
+            name: String(text.prefix(50)),
+            url: nil,
+            text: text,
+            dateAdded: Date(),
+            icon: NSImage(systemSymbolName: "doc.text", accessibilityDescription: nil)
+        )
+
+        items.insert(item, at: 0)
+
+        let pb = NSPasteboard.general
+        pb.clearContents()
+        pb.setString(text, forType: .string)
+    }
+
+    func copyToClipboard(_ item: ClipboardItem) {
+        let pb = NSPasteboard.general
+        pb.clearContents()
+
+        switch item.type {
+        case .file:
+            if let url = item.url {
+                pb.writeObjects([url as NSURL])
+            }
+        case .url:
+            if let url = item.url {
+                pb.writeObjects([url as NSURL])
+            }
+        case .text:
+            if let text = item.text {
+                pb.setString(text, forType: .string)
+            }
+        }
+    }
+
+    func removeItem(_ item: ClipboardItem) {
+        if item.type == .file, let url = item.url {
+            try? FileManager.default.removeItem(at: url)
+        }
+        items.removeAll { $0.id == item.id }
+    }
+
+    func clearAll() {
+        for item in items {
+            if item.type == .file, let url = item.url {
+                try? FileManager.default.removeItem(at: url)
+            }
+        }
+        items.removeAll()
+    }
+
+    // Detect image format from raw data bytes
+    private static func detectImageExtension(from data: Data) -> String {
+        guard data.count >= 4 else { return "png" }
+        let bytes = [UInt8](data.prefix(4))
+
+        if bytes[0] == 0x89 && bytes[1] == 0x50 { return "png" }
+        if bytes[0] == 0xFF && bytes[1] == 0xD8 { return "jpg" }
+        if bytes[0] == 0x47 && bytes[1] == 0x49 { return "gif" }
+        if bytes[0] == 0x52 && bytes[1] == 0x49 { return "webp" }
+        if bytes[0] == 0x42 && bytes[1] == 0x4D { return "bmp" }
+        if bytes[0] == 0x49 && bytes[1] == 0x49 { return "tiff" }
+        if bytes[0] == 0x4D && bytes[1] == 0x4D { return "tiff" }
+        return "png"
+    }
+}
