@@ -213,4 +213,45 @@ class DropHostingView<Content: View>: NSHostingView<Content> {
             self.viewModel?.dropTargeting = false
         }
     }
+
+    override func rightMouseDown(with event: NSEvent) {
+        guard let vm = viewModel, vm.isExpanded else {
+            super.rightMouseDown(with: event)
+            return
+        }
+
+        let menu = NSMenu()
+
+        let settingsItem = NSMenuItem(title: "Settings", action: #selector(showSettings), keyEquivalent: "")
+        settingsItem.target = self
+        menu.addItem(settingsItem)
+
+        let clearItem = NSMenuItem(title: "Clear All", action: #selector(clearAll), keyEquivalent: "")
+        clearItem.target = self
+        menu.addItem(clearItem)
+
+        let openItem = NSMenuItem(title: "Open Storage Folder", action: #selector(openStorageFolder), keyEquivalent: "")
+        openItem.target = self
+        menu.addItem(openItem)
+
+        NSMenu.popUpContextMenu(menu, with: event, for: self)
+    }
+
+    @objc private func showSettings() {
+        DispatchQueue.main.async {
+            withAnimation(.spring(response: 0.3, dampingFraction: 0.8)) {
+                self.viewModel?.selectedTab = .settings
+            }
+        }
+    }
+
+    @objc private func clearAll() {
+        viewModel?.clipboardManager.clearAll()
+    }
+
+    @objc private func openStorageFolder() {
+        if let url = viewModel?.clipboardManager.storageDirectory {
+            NSWorkspace.shared.open(url)
+        }
+    }
 }

@@ -2,13 +2,32 @@ import SwiftUI
 import Combine
 import UniformTypeIdentifiers
 
+enum NotchTab: String, CaseIterable {
+    case files = "Files"
+    case screenshots = "Screenshots"
+    case recording = "Record"
+    case settings = "Settings"
+
+    var icon: String {
+        switch self {
+        case .files: return "doc.on.doc"
+        case .screenshots: return "camera.viewfinder"
+        case .recording: return "record.circle"
+        case .settings: return "gearshape"
+        }
+    }
+}
+
 class NotchViewModel: ObservableObject {
     @Published var isExpanded = false
     @Published var isDraggingOverNotch = false
     @Published var isHovering = false
     @Published var dropTargeting = false
+    @Published var selectedTab: NotchTab = .files
 
     let clipboardManager = ClipboardManager()
+    let screenshotWatcher = ScreenshotWatcher()
+    let screenRecorder = ScreenRecorder()
 
     weak var notchWindow: NotchWindow?
     weak var dragDetector: DragDetector?
@@ -17,7 +36,7 @@ class NotchViewModel: ObservableObject {
     private var cancellables = Set<AnyCancellable>()
 
     let closedSize: CGSize
-    let openSize = CGSize(width: 700, height: 210)
+    let openSize = CGSize(width: 700, height: 250)
 
     init() {
         if let screen = NSScreen.main {
@@ -40,6 +59,20 @@ class NotchViewModel: ObservableObject {
                 self?.objectWillChange.send()
             }
             .store(in: &cancellables)
+
+        screenshotWatcher.objectWillChange
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] in
+                self?.objectWillChange.send()
+            }
+            .store(in: &cancellables)
+
+        screenRecorder.objectWillChange
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] in
+                self?.objectWillChange.send()
+            }
+            .store(in: &cancellables)
     }
 
     var currentWidth: CGFloat {
@@ -53,6 +86,7 @@ class NotchViewModel: ObservableObject {
     func expand() {
         collapseWorkItem?.cancel()
         guard !isExpanded else { return }
+        selectedTab = .files
         withAnimation(.spring(response: 0.4, dampingFraction: 0.78, blendDuration: 0.1)) {
             isExpanded = true
         }

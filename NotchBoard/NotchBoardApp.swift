@@ -2,7 +2,7 @@ import SwiftUI
 import AppKit
 
 @main
-struct NotchDropApp: App {
+struct NotchBoardApp: App {
     @NSApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
 
     var body: some Scene {
@@ -25,6 +25,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         setupDragDetector()
         setupNotchWindow()
         setupStatusBarItem()
+        viewModel.screenshotWatcher.start()
     }
 
     private func setupDragDetector() {
@@ -57,7 +58,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         guard let screen = NSScreen.main else { return }
 
         let windowWidth: CGFloat = 750
-        let windowHeight: CGFloat = 250
+        let windowHeight: CGFloat = 300
 
         let originX = screen.frame.midX - windowWidth / 2
         let originY = screen.frame.maxY - windowHeight
@@ -90,14 +91,14 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     private func setupStatusBarItem() {
         statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.squareLength)
         if let button = statusItem?.button {
-            button.image = NSImage(systemSymbolName: "tray.and.arrow.down", accessibilityDescription: "NotchDrop")
+            button.image = NSImage(systemSymbolName: "tray.and.arrow.down", accessibilityDescription: "NotchBoard")
         }
 
         let menu = NSMenu()
         menu.addItem(NSMenuItem(title: "Clear Clipboard", action: #selector(clearClipboard), keyEquivalent: ""))
         menu.addItem(NSMenuItem(title: "Open Storage Folder", action: #selector(openStorageFolder), keyEquivalent: ""))
         menu.addItem(NSMenuItem.separator())
-        menu.addItem(NSMenuItem(title: "Quit NotchDrop", action: #selector(quitApp), keyEquivalent: "q"))
+        menu.addItem(NSMenuItem(title: "Quit NotchBoard", action: #selector(quitApp), keyEquivalent: "q"))
         statusItem?.menu = menu
     }
 
@@ -106,7 +107,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     @objc private func openStorageFolder() {
-        let url = ClipboardManager.storageDirectory
+        let url = viewModel.clipboardManager.storageDirectory
         NSWorkspace.shared.open(url)
     }
 

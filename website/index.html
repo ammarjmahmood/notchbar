@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NotchDrop — Your notch, now useful</title>
-    <meta name="description" content="A tiny macOS utility that turns your MacBook notch into a drag-and-drop file shelf. Drop files, images, and text — grab them anytime.">
+    <title>Notchy — Your notch, supercharged</title>
+    <meta name="description" content="A macOS utility that turns your MacBook notch into a powerful hub with tabs for Files, Screenshots, Settings, and Screen Recording. Drop, capture, record.">
     <link rel="icon" type="image/png" href="icon.png">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -217,14 +217,14 @@
             font-size: 9px; color: rgba(255,255,255,0.7);
             text-shadow: 0 1px 3px rgba(0,0,0,0.5);
         }
-        /* NotchDrop tray overlay */
+        /* Notchy tray overlay */
         .notch-tray {
             position: absolute;
             top: 28px; left: 50%; transform: translateX(-50%);
             width: 480px;
             background: linear-gradient(180deg, rgba(15,15,25,0.97), rgba(10,10,18,0.98));
             border-radius: 0 0 20px 20px;
-            padding: 14px 18px 16px;
+            padding: 10px 18px 16px;
             z-index: 15;
             border: 1px solid rgba(255,255,255,0.06);
             border-top: none;
@@ -235,6 +235,27 @@
         @keyframes traySlide {
             from { opacity: 0; transform: translateX(-50%) translateY(-10px) scaleY(0.8); }
             to { opacity: 1; transform: translateX(-50%) translateY(0) scaleY(1); }
+        }
+        /* Tab bar inside tray */
+        .tray-tabs {
+            display: flex; gap: 4px;
+            margin-bottom: 10px;
+            animation: itemPop 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+            animation-delay: 1.15s;
+        }
+        .tray-tab {
+            padding: 4px 14px;
+            border-radius: 8px;
+            font-size: 9px;
+            font-weight: 600;
+            color: rgba(255,255,255,0.35);
+            background: rgba(255,255,255,0.04);
+            letter-spacing: 0.02em;
+            transition: all 0.2s;
+        }
+        .tray-tab.active {
+            color: #fff;
+            background: var(--accent);
         }
         .tray-dropzone {
             border: 1.5px dashed rgba(255,255,255,0.15);
@@ -342,6 +363,80 @@
             font-size: 0.8rem; color: var(--text-2);
         }
 
+        /* ── VIDEO SHOWCASE ── */
+        .video-showcase {
+            padding: 80px 0 100px;
+            text-align: center;
+            position: relative;
+        }
+        .video-showcase::before {
+            content: '';
+            position: absolute; top: 0; left: 50%; transform: translateX(-50%);
+            width: 900px; height: 600px;
+            background: radial-gradient(circle, rgba(108,92,231,0.05) 0%, transparent 70%);
+            pointer-events: none;
+        }
+        .video-container {
+            position: relative;
+            max-width: 860px;
+            margin: 0 auto;
+            aspect-ratio: 16/9;
+            border-radius: 18px;
+            overflow: hidden;
+            background: #1a1a2e;
+            border: 2px solid rgba(108,92,231,0.2);
+            box-shadow: 0 16px 60px rgba(108,92,231,0.12), 0 4px 20px rgba(0,0,0,0.08);
+        }
+        .video-container video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+        .video-play-overlay {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 2;
+            transition: opacity 0.3s ease;
+        }
+        .video-play-overlay.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+        .video-play-btn {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.15);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 2px solid rgba(255,255,255,0.25);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+        .video-play-btn:hover {
+            background: rgba(255,255,255,0.25);
+            transform: scale(1.08);
+            box-shadow: 0 0 40px rgba(108,92,231,0.3);
+        }
+        .video-play-btn svg {
+            width: 32px;
+            height: 32px;
+            margin-left: 4px;
+        }
+        .video-caption {
+            margin-top: 20px;
+            font-size: 0.88rem;
+            color: var(--text-2);
+            line-height: 1.6;
+        }
+
         /* ── FEATURES ── */
         .features { padding: 100px 0; }
         .section-tag {
@@ -429,6 +524,115 @@
         .step-card h3 { font-size: 1rem; font-weight: 700; margin-bottom: 6px; }
         .step-card p { font-size: 0.85rem; color: var(--text-2); max-width: 240px; margin: 0 auto; line-height: 1.6; }
 
+        /* ── PRICING ── */
+        .pricing {
+            padding: 100px 0;
+            text-align: center;
+        }
+        .pricing .section-sub {
+            margin-left: auto;
+            margin-right: auto;
+        }
+        .pricing-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 24px;
+            max-width: 780px;
+            margin: 0 auto;
+        }
+        .pricing-card {
+            background: var(--card);
+            border: 1.5px solid var(--border);
+            border-radius: 22px;
+            padding: 40px 32px 36px;
+            text-align: left;
+            position: relative;
+            transition: all 0.25s ease;
+        }
+        .pricing-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 40px var(--glow);
+        }
+        .pricing-card.pro {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 1px var(--accent), 0 8px 40px rgba(108,92,231,0.15);
+        }
+        .pricing-card.pro:hover {
+            box-shadow: 0 0 0 1px var(--accent), 0 16px 60px rgba(108,92,231,0.25);
+        }
+        .pricing-badge {
+            position: absolute;
+            top: -12px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: linear-gradient(135deg, var(--accent), var(--accent-2));
+            color: #fff;
+            font-size: 0.65rem;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            padding: 5px 16px;
+            border-radius: 100px;
+            text-transform: uppercase;
+        }
+        .pricing-card h3 {
+            font-size: 1.15rem;
+            font-weight: 700;
+            margin-bottom: 16px;
+        }
+        .pricing-price {
+            display: flex;
+            align-items: baseline;
+            gap: 6px;
+            margin-bottom: 6px;
+        }
+        .pricing-price .amount {
+            font-size: 2.8rem;
+            font-weight: 800;
+            letter-spacing: -0.03em;
+            line-height: 1;
+        }
+        .pricing-card.pro .pricing-price .amount {
+            background: linear-gradient(135deg, var(--accent), var(--accent-2));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .pricing-period {
+            font-size: 0.85rem;
+            color: var(--text-2);
+            margin-bottom: 28px;
+        }
+        .pricing-features {
+            list-style: none;
+            margin-bottom: 32px;
+        }
+        .pricing-features li {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            font-size: 0.88rem;
+            color: var(--text);
+            line-height: 1.5;
+            padding: 7px 0;
+        }
+        .pricing-features li::before {
+            content: '';
+            width: 18px;
+            height: 18px;
+            min-width: 18px;
+            border-radius: 50%;
+            background: var(--accent-bg);
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%236C5CE7' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='20 6 9 17 4 12'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: center;
+            background-size: 11px;
+            margin-top: 2px;
+        }
+        .pricing-card .btn {
+            width: 100%;
+            justify-content: center;
+        }
+
         /* ── CTA ── */
         .cta { padding: 100px 0; }
         .cta-card {
@@ -511,12 +715,16 @@
             .steps-row { grid-template-columns: 1fr; gap: 40px; }
             .steps-row::before { display: none; }
             .macbook-screen { border-radius: 10px 10px 0 0; }
-            .notch-tray { width: 90%; padding: 10px 12px 12px; }
+            .notch-tray { width: 90%; padding: 8px 12px 12px; }
             .tray-item { width: 44px; height: 44px; }
             .tray-item-icon { font-size: 18px; }
+            .tray-tab { font-size: 8px; padding: 3px 10px; }
             .desktop-files { display: none; }
             .cursor-anim, .drag-ghost { display: none; }
             .cta-card { padding: 48px 24px; }
+            .pricing-grid { grid-template-columns: 1fr; max-width: 400px; }
+            .video-play-btn { width: 64px; height: 64px; }
+            .video-play-btn svg { width: 26px; height: 26px; }
         }
         @media (max-width: 480px) {
             .nav-links a:not(.btn) { display: none; }
@@ -529,12 +737,13 @@
 <nav>
     <div class="container">
         <a href="#" class="nav-brand">
-            <img src="icon.png" alt="NotchDrop">
-            NotchDrop
+            <img src="icon.png" alt="Notchy">
+            Notchy
         </a>
         <div class="nav-links">
             <a href="#features">Features</a>
             <a href="#how">How it works</a>
+            <a href="#pricing">Pricing</a>
             <a href="#download" class="btn btn-primary btn-sm">Download</a>
         </div>
     </div>
@@ -544,17 +753,17 @@
 <section class="hero">
     <div class="container">
         <div class="hero-pill fade-up">
-            $5 &middot; One-time purchase
-            <span class="tag">v1.0</span>
+            Free &middot; Open Source
+            <span class="tag">v2.0</span>
         </div>
 
         <div class="hero-icon-wrap fade-up">
-            <img src="icon.png" alt="NotchDrop" class="hero-icon">
+            <img src="icon.png" alt="Notchy" class="hero-icon">
         </div>
 
-        <h1 class="fade-up">Your notch,<br><span class="gr">now useful.</span></h1>
+        <h1 class="fade-up">Your notch,<br><span class="gr">supercharged.</span></h1>
 
-        <p class="fade-up">Turn the MacBook notch into a drag-and-drop file shelf. Drop files, images, and text&nbsp;&mdash; grab them back anytime.</p>
+        <p class="fade-up">Files, screenshots, screen recording &mdash; all living in your MacBook notch. Drop, capture, record.</p>
 
         <div class="hero-btns fade-up">
             <a href="#download" class="btn btn-primary">
@@ -591,8 +800,14 @@
                     </div>
                 </div>
                 <div class="macbook-desktop">
-                    <!-- NotchDrop tray expanded -->
+                    <!-- Notchy tray expanded -->
                     <div class="notch-tray">
+                        <!-- Tab bar -->
+                        <div class="tray-tabs">
+                            <div class="tray-tab active">Files</div>
+                            <div class="tray-tab">Scrn</div>
+                            <div class="tray-tab">Rec</div>
+                        </div>
                         <div class="tray-dropzone">
                             <div class="tray-item">
                                 <span class="tray-item-icon">📄</span>
@@ -644,7 +859,27 @@
             </div>
             <div class="macbook-base"></div>
         </div>
-        <p class="mockup-caption fade-up">Hover over the notch to reveal your file tray</p>
+        <p class="mockup-caption fade-up">Hover over the notch to reveal your tabbed hub</p>
+    </div>
+</section>
+
+<!-- VIDEO SHOWCASE -->
+<section class="video-showcase" id="video">
+    <div class="container">
+        <span class="section-tag">See it in action</span>
+        <h2 class="section-h2 fade-up">Watch Notchy in action</h2>
+        <div style="height: 20px;"></div>
+        <div class="video-container fade-up">
+            <video id="demo-video" controls poster="demo-poster.png" src="demo.mp4" preload="metadata"></video>
+            <div class="video-play-overlay" id="video-play-overlay">
+                <div class="video-play-btn">
+                    <svg viewBox="0 0 24 24" fill="white" xmlns="http://www.w3.org/2000/svg">
+                        <polygon points="6,3 20,12 6,21" />
+                    </svg>
+                </div>
+            </div>
+        </div>
+        <p class="video-caption fade-up">Drop files, capture screenshots, record your screen &mdash; all from the notch.</p>
     </div>
 </section>
 
@@ -652,28 +887,38 @@
 <section class="features" id="features">
     <div class="container">
         <span class="section-tag">Features</span>
-        <h2 class="section-h2 fade-up">Everything drops here.</h2>
-        <p class="section-sub fade-up">NotchDrop lives quietly in your notch until you need it. Drag anything in, grab it back when you're ready.</p>
+        <h2 class="section-h2 fade-up">Everything lives in the notch.</h2>
+        <p class="section-sub fade-up">Notchy turns the dead space on your MacBook into a powerful, tabbed productivity hub.</p>
         <div class="feat-grid">
             <div class="feat-card fade-up">
                 <div class="feat-emoji">📦</div>
-                <h3>Any file type</h3>
-                <p>PDFs, images, videos, documents, archives — drag and drop anything directly into the notch. It all just works.</p>
+                <h3>Drop any file</h3>
+                <p>Drag files, images, or text directly into the notch. Everything is saved instantly and organized with timestamps.</p>
             </div>
             <div class="feat-card fade-up">
-                <div class="feat-emoji">🌐</div>
-                <h3>Auto-saves from browsers</h3>
-                <p>Drag an image from Chrome or Safari and NotchDrop downloads it in its original format. JPG stays JPG, not TIFF.</p>
+                <div class="feat-emoji">📸</div>
+                <h3>Auto-capture screenshots</h3>
+                <p>Notchy automatically detects new screenshots and pulls them into the Screenshots tab. No manual dragging needed.</p>
             </div>
             <div class="feat-card fade-up">
-                <div class="feat-emoji">📂</div>
-                <h3>Neatly organized</h3>
-                <p>Files are saved to ~/Documents/NotchDrop with unique timestamps. Nothing gets overwritten, everything is findable.</p>
+                <div class="feat-emoji">🎥</div>
+                <h3>Screen recording</h3>
+                <p>Record your screen with system audio and microphone input, even while wearing headphones. One click from the notch.</p>
+            </div>
+            <div class="feat-card fade-up">
+                <div class="feat-emoji">📑</div>
+                <h3>Tabbed interface</h3>
+                <p>Switch between Files, Screenshots, and Settings tabs right inside the tray. Everything organized, nothing cluttered.</p>
+            </div>
+            <div class="feat-card fade-up">
+                <div class="feat-emoji">⚙️</div>
+                <h3>Configurable settings</h3>
+                <p>Change your storage folder, set an auto-clear timer, toggle launch at login, and more — all from the Settings tab.</p>
             </div>
             <div class="feat-card fade-up">
                 <div class="feat-emoji">⏱</div>
-                <h3>Auto-clears in 10 min</h3>
-                <p>The shelf tidies itself after 10 minutes of inactivity. No clutter, no maintenance, no thinking about it.</p>
+                <h3>Auto-clears</h3>
+                <p>The tray tidies itself with a configurable timer. Default is 10 minutes. No clutter, no maintenance, no thinking about it.</p>
             </div>
         </div>
     </div>
@@ -683,8 +928,8 @@
 <section class="how" id="how">
     <div class="container">
         <span class="section-tag">How it works</span>
-        <h2 class="section-h2 fade-up">Three steps. Zero config.</h2>
-        <p class="section-sub fade-up" style="margin-left:auto;margin-right:auto;">No preferences to set. No accounts to create. Just drag.</p>
+        <h2 class="section-h2 fade-up">Three ways to use your notch.</h2>
+        <p class="section-sub fade-up" style="margin-left:auto;margin-right:auto;">Hover, drop, record. That's the whole workflow.</p>
         <div class="steps-row">
             <div class="step-card fade-up">
                 <div class="step-num">1</div>
@@ -695,14 +940,57 @@
             <div class="step-card fade-up">
                 <div class="step-num">2</div>
                 <div class="step-icon">📥</div>
-                <h3>Drop it in</h3>
-                <p>Drag any file, image, or text into the tray. It's saved instantly and shows up as a preview thumbnail.</p>
+                <h3>Drop files or take screenshots</h3>
+                <p>Drag any file into the tray, or take a screenshot — it appears in its tab automatically.</p>
             </div>
             <div class="step-card fade-up">
                 <div class="step-num">3</div>
-                <div class="step-icon">🚀</div>
-                <h3>Grab it back</h3>
-                <p>Click to copy to clipboard. Or drag it straight out into another app. That's the whole workflow.</p>
+                <div class="step-icon">🔴</div>
+                <h3>Record your screen</h3>
+                <p>Hit record in the tray to capture your screen with system and mic audio. Everything saved to the notch.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- PRICING -->
+<section class="pricing" id="pricing">
+    <div class="container">
+        <span class="section-tag">Pricing</span>
+        <h2 class="section-h2 fade-up">Simple, honest pricing</h2>
+        <p class="section-sub fade-up" style="margin-left:auto;margin-right:auto;">Start free. Upgrade when you want more.</p>
+        <div class="pricing-grid">
+            <!-- Free Tier -->
+            <div class="pricing-card fade-up">
+                <h3>Notchy Free</h3>
+                <div class="pricing-price">
+                    <span class="amount">$0</span>
+                </div>
+                <p class="pricing-period">forever</p>
+                <ul class="pricing-features">
+                    <li>Drop files into notch</li>
+                    <li>Auto-capture screenshots</li>
+                    <li>Configurable auto-clear timer</li>
+                    <li>Tabbed interface (Files, Screenshots, Settings)</li>
+                </ul>
+                <a href="#download" class="btn btn-ghost">Download Free</a>
+            </div>
+            <!-- Pro Tier -->
+            <div class="pricing-card pro fade-up">
+                <div class="pricing-badge">MOST POPULAR</div>
+                <h3>Notchy Pro</h3>
+                <div class="pricing-price">
+                    <span class="amount">$5</span>
+                </div>
+                <p class="pricing-period">one-time</p>
+                <ul class="pricing-features">
+                    <li>Everything in Free</li>
+                    <li>Screen recording with system audio</li>
+                    <li>Microphone audio capture</li>
+                    <li>Recording history & management</li>
+                    <li>Priority updates</li>
+                </ul>
+                <a href="#download" class="btn btn-primary">Get Pro</a>
             </div>
         </div>
     </div>
@@ -712,10 +1000,10 @@
 <section class="cta" id="download">
     <div class="container">
         <div class="cta-card fade-up">
-            <img src="icon.png" alt="NotchDrop" class="cta-icon">
-            <h2>Ready to make your notch useful?</h2>
-            <p>$5 one-time. Lightweight and built natively for macOS.</p>
-            <a href="#" class="btn btn-primary">
+            <img src="icon.png" alt="Notchy" class="cta-icon">
+            <h2>Ready to supercharge your notch?</h2>
+            <p>Start free, upgrade to Pro for screen recording.</p>
+            <a href="#download" class="btn btn-primary">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
                 Download for Mac
             </a>
@@ -725,9 +1013,9 @@
 
 <footer>
     <div class="container">
-        <div class="footer-l">Made by <a href="https://github.com/ammarmahmood">Ammar Mahmood</a></div>
+        <div class="footer-l">Made by <a href="https://github.com/ammarjmahmood">Ammar Mahmood</a></div>
         <div class="footer-r">
-            <a href="mailto:ammar@example.com">Contact</a>
+            <a href="https://github.com/ammarjmahmood">GitHub</a>
         </div>
     </div>
 </footer>
@@ -737,6 +1025,22 @@ const obs = new IntersectionObserver(entries => {
     entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('vis'); });
 }, { threshold: 0.1, rootMargin: '0px 0px -60px 0px' });
 document.querySelectorAll('.fade-up').forEach(el => obs.observe(el));
+
+// Video play overlay handler
+const videoOverlay = document.getElementById('video-play-overlay');
+const demoVideo = document.getElementById('demo-video');
+if (videoOverlay && demoVideo) {
+    videoOverlay.addEventListener('click', function() {
+        demoVideo.play();
+        videoOverlay.classList.add('hidden');
+    });
+    demoVideo.addEventListener('pause', function() {
+        videoOverlay.classList.remove('hidden');
+    });
+    demoVideo.addEventListener('play', function() {
+        videoOverlay.classList.add('hidden');
+    });
+}
 </script>
 
 </body>

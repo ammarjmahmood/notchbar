@@ -24,12 +24,11 @@ struct ClipboardItem: Identifiable, Equatable {
 class ClipboardManager: ObservableObject {
     @Published var items: [ClipboardItem] = []
 
-    static let storageDirectory: URL = {
-        let documents = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
-        let dir = documents.appendingPathComponent("NotchDrop", isDirectory: true)
-        try? FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
-        return dir
-    }()
+    private let settings = SettingsManager.shared
+
+    var storageDirectory: URL {
+        settings.storageDirectory
+    }
 
     private static let imageExtensions: Set<String> = [
         "jpg", "jpeg", "png", "gif", "webp", "bmp", "tiff", "tif", "svg", "heic", "heif", "ico", "avif"
@@ -44,13 +43,14 @@ class ClipboardManager: ObservableObject {
             self?.syncWithFileSystem()
         }
 
-        // Auto-clear everything after 10 minutes
+        // Auto-clear based on settings
         startAutoClearTimer()
     }
 
     private func startAutoClearTimer() {
         autoClearTimer?.invalidate()
-        autoClearTimer = Timer.scheduledTimer(withTimeInterval: 600, repeats: false) { [weak self] _ in
+        let interval = TimeInterval(settings.autoClearMinutes * 60)
+        autoClearTimer = Timer.scheduledTimer(withTimeInterval: interval, repeats: false) { [weak self] _ in
             DispatchQueue.main.async {
                 self?.clearAll()
             }
@@ -77,13 +77,13 @@ class ClipboardManager: ObservableObject {
 
     func addFile(_ url: URL) {
         startAutoClearTimer() // Reset 10-min timer
-        let destination = Self.storageDirectory.appendingPathComponent(url.lastPathComponent)
+        let destination = storageDirectory.appendingPathComponent(url.lastPathComponent)
         let finalURL: URL
         if FileManager.default.fileExists(atPath: destination.path) {
             let name = url.deletingPathExtension().lastPathComponent
             let ext = url.pathExtension
             let uniqueName = "\(name)_\(Int(Date().timeIntervalSince1970)).\(ext)"
-            finalURL = Self.storageDirectory.appendingPathComponent(uniqueName)
+            finalURL = storageDirectory.appendingPathComponent(uniqueName)
         } else {
             finalURL = destination
         }
@@ -122,10 +122,10 @@ class ClipboardManager: ObservableObject {
         let ext = Self.detectImageExtension(from: data)
         let fileName = name.hasSuffix(".\(ext)") ? name : "\(name).\(ext)"
 
-        var finalURL = Self.storageDirectory.appendingPathComponent(fileName)
+        var finalURL = storageDirectory.appendingPathComponent(fileName)
         if FileManager.default.fileExists(atPath: finalURL.path) {
             let base = finalURL.deletingPathExtension().lastPathComponent
-            finalURL = Self.storageDirectory.appendingPathComponent("\(base)_\(Int(Date().timeIntervalSince1970)).\(ext)")
+            finalURL = storageDirectory.appendingPathComponent("\(base)_\(Int(Date().timeIntervalSince1970)).\(ext)")
         }
 
         do {
