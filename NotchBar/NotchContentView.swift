@@ -69,7 +69,7 @@ struct NotchContentView: View {
     @ViewBuilder
     private var closedContent: some View {
         HStack(spacing: 5) {
-            let totalCount = viewModel.clipboardManager.items.count + viewModel.screenshotWatcher.screenshots.count + viewModel.screenRecorder.recordings.count
+            let totalCount = viewModel.clipboardManager.items.count + viewModel.screenshotWatcher.screenshots.count
             if totalCount > 0 {
                 HStack(spacing: 4) {
                     Image(systemName: "tray.full.fill")
@@ -101,8 +101,6 @@ struct NotchContentView: View {
                 filesTabContent
             case .screenshots:
                 screenshotsTabContent
-            case .recording:
-                recordingTabContent
             case .settings:
                 SettingsView()
             }
@@ -181,7 +179,8 @@ struct NotchContentView: View {
                                         withAnimation(.spring(response: 0.3, dampingFraction: 0.8)) {
                                             viewModel.clipboardManager.removeItem(item)
                                         }
-                                    }
+                                    },
+                                    viewModel: viewModel
                                 )
                                 .transition(.asymmetric(
                                     insertion: .scale(scale: 0.5).combined(with: .opacity),
@@ -261,7 +260,8 @@ struct NotchContentView: View {
                                         withAnimation(.spring(response: 0.3, dampingFraction: 0.8)) {
                                             viewModel.screenshotWatcher.removeScreenshot(item)
                                         }
-                                    }
+                                    },
+                                    viewModel: viewModel
                                 )
                                 .transition(.asymmetric(
                                     insertion: .scale(scale: 0.5).combined(with: .opacity),
@@ -308,171 +308,4 @@ struct NotchContentView: View {
         .padding(.bottom, 14)
     }
 
-    // MARK: - Recording Tab
-
-    @ViewBuilder
-    private var recordingTabContent: some View {
-        ZStack {
-            RoundedRectangle(cornerRadius: 16, style: .continuous)
-                .strokeBorder(
-                    style: StrokeStyle(lineWidth: 1.5, dash: [7, 5])
-                )
-                .foregroundStyle(.white.opacity(0.12))
-
-            if viewModel.screenRecorder.isRecording {
-                // Recording in progress
-                VStack(spacing: 8) {
-                    HStack(spacing: 16) {
-                        // Pulsing red dot
-                        Circle()
-                            .fill(.red)
-                            .frame(width: 10, height: 10)
-                            .shadow(color: .red.opacity(0.6), radius: 4)
-                            .modifier(PulsingModifier())
-
-                        // Elapsed time
-                        Text(formatDuration(viewModel.screenRecorder.recordingDuration))
-                            .font(.system(size: 18, weight: .medium, design: .monospaced))
-                            .foregroundStyle(.white.opacity(0.8))
-
-                        // Stop button
-                        Button(action: {
-                            viewModel.screenRecorder.stopRecording()
-                        }) {
-                            ZStack {
-                                Circle()
-                                    .fill(.white.opacity(0.12))
-                                    .frame(width: 40, height: 40)
-                                RoundedRectangle(cornerRadius: 4, style: .continuous)
-                                    .fill(.red)
-                                    .frame(width: 16, height: 16)
-                            }
-                        }
-                        .buttonStyle(.plain)
-                        .help("Stop recording")
-                    }
-
-                    Text("Recording screen...")
-                        .font(.system(size: 10, weight: .medium, design: .rounded))
-                        .foregroundStyle(.white.opacity(0.3))
-                }
-            } else if viewModel.screenRecorder.recordings.isEmpty {
-                // No recordings yet
-                VStack(spacing: 10) {
-                    Button(action: {
-                        viewModel.screenRecorder.startRecording()
-                    }) {
-                        ZStack {
-                            Circle()
-                                .fill(.white.opacity(0.08))
-                                .frame(width: 52, height: 52)
-                            Circle()
-                                .fill(.red)
-                                .frame(width: 28, height: 28)
-                        }
-                    }
-                    .buttonStyle(.plain)
-                    .help("Start screen recording")
-
-                    Text("Start screen recording")
-                        .font(.system(size: 12, weight: .medium, design: .rounded))
-                        .foregroundStyle(.white.opacity(0.25))
-                }
-            } else {
-                // Has recordings
-                VStack(spacing: 6) {
-                    HStack {
-                        // Record button (small)
-                        Button(action: {
-                            viewModel.screenRecorder.startRecording()
-                        }) {
-                            ZStack {
-                                Circle()
-                                    .fill(.white.opacity(0.08))
-                                    .frame(width: 32, height: 32)
-                                Circle()
-                                    .fill(.red)
-                                    .frame(width: 16, height: 16)
-                            }
-                        }
-                        .buttonStyle(.plain)
-                        .help("Start screen recording")
-                        .padding(.leading, 10)
-
-                        ScrollView(.horizontal, showsIndicators: false) {
-                            HStack(spacing: 12) {
-                                ForEach(viewModel.screenRecorder.recordings) { item in
-                                    ClipboardItemView(
-                                        item: item,
-                                        onCopy: { viewModel.screenRecorder.copyToClipboard(item) },
-                                        onRemove: {
-                                            withAnimation(.spring(response: 0.3, dampingFraction: 0.8)) {
-                                                viewModel.screenRecorder.removeRecording(item)
-                                            }
-                                        }
-                                    )
-                                    .transition(.asymmetric(
-                                        insertion: .scale(scale: 0.5).combined(with: .opacity),
-                                        removal: .scale(scale: 0.8).combined(with: .opacity)
-                                    ))
-                                }
-                            }
-                            .padding(.horizontal, 10)
-                            .animation(.spring(response: 0.35, dampingFraction: 0.8), value: viewModel.screenRecorder.recordings.count)
-                        }
-                    }
-
-                    HStack {
-                        Button(action: {
-                            withAnimation(.spring(response: 0.3, dampingFraction: 0.8)) {
-                                viewModel.screenRecorder.clearAll()
-                            }
-                        }) {
-                            HStack(spacing: 4) {
-                                Image(systemName: "trash")
-                                    .font(.system(size: 9, weight: .medium))
-                                Text("Clear")
-                                    .font(.system(size: 9, weight: .medium, design: .rounded))
-                            }
-                            .foregroundStyle(.white.opacity(0.35))
-                            .padding(.horizontal, 8)
-                            .padding(.vertical, 4)
-                            .background(.white.opacity(0.06), in: Capsule())
-                        }
-                        .buttonStyle(.plain)
-
-                        Spacer()
-
-                        Text("\(viewModel.screenRecorder.recordings.count) recordings")
-                            .font(.system(size: 9, weight: .medium, design: .rounded))
-                            .foregroundStyle(.white.opacity(0.2))
-                    }
-                    .padding(.horizontal, 12)
-                }
-                .padding(.vertical, 10)
-            }
-        }
-        .padding(.horizontal, 16)
-        .padding(.top, 6)
-        .padding(.bottom, 14)
-    }
-
-    private func formatDuration(_ duration: TimeInterval) -> String {
-        let minutes = Int(duration) / 60
-        let seconds = Int(duration) % 60
-        return String(format: "%02d:%02d", minutes, seconds)
-    }
-}
-
-// MARK: - Pulsing Animation Modifier
-
-struct PulsingModifier: ViewModifier {
-    @State private var isPulsing = false
-
-    func body(content: Content) -> some View {
-        content
-            .opacity(isPulsing ? 0.3 : 1.0)
-            .animation(.easeInOut(duration: 0.8).repeatForever(autoreverses: true), value: isPulsing)
-            .onAppear { isPulsing = true }
-    }
 }

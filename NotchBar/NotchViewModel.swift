@@ -5,14 +5,12 @@ import UniformTypeIdentifiers
 enum NotchTab: String, CaseIterable {
     case files = "Files"
     case screenshots = "Screenshots"
-    case recording = "Record"
     case settings = "Settings"
 
     var icon: String {
         switch self {
         case .files: return "doc.on.doc"
         case .screenshots: return "camera.viewfinder"
-        case .recording: return "record.circle"
         case .settings: return "gearshape"
         }
     }
@@ -23,11 +21,11 @@ class NotchViewModel: ObservableObject {
     @Published var isDraggingOverNotch = false
     @Published var isHovering = false
     @Published var dropTargeting = false
+    @Published var isDraggingFromNotch = false
     @Published var selectedTab: NotchTab = .files
 
     let clipboardManager = ClipboardManager()
     let screenshotWatcher = ScreenshotWatcher()
-    let screenRecorder = ScreenRecorder()
 
     weak var notchWindow: NotchWindow?
     weak var dragDetector: DragDetector?
@@ -66,13 +64,6 @@ class NotchViewModel: ObservableObject {
                 self?.objectWillChange.send()
             }
             .store(in: &cancellables)
-
-        screenRecorder.objectWillChange
-            .receive(on: DispatchQueue.main)
-            .sink { [weak self] in
-                self?.objectWillChange.send()
-            }
-            .store(in: &cancellables)
     }
 
     var currentWidth: CGFloat {
@@ -95,7 +86,7 @@ class NotchViewModel: ObservableObject {
 
     func collapse() {
         collapseWorkItem?.cancel()
-        guard !isHovering, !dropTargeting, !isDraggingOverNotch else { return }
+        guard !isHovering, !dropTargeting, !isDraggingOverNotch, !isDraggingFromNotch else { return }
         withAnimation(.spring(response: 0.35, dampingFraction: 0.82, blendDuration: 0.05)) {
             isExpanded = false
         }

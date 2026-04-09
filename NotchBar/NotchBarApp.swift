@@ -2,7 +2,7 @@ import SwiftUI
 import AppKit
 
 @main
-struct NotchBoardApp: App {
+struct NotchBarApp: App {
     @NSApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
 
     var body: some Scene {
@@ -91,14 +91,14 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     private func setupStatusBarItem() {
         statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.squareLength)
         if let button = statusItem?.button {
-            button.image = NSImage(systemSymbolName: "tray.and.arrow.down", accessibilityDescription: "NotchBoard")
+            button.image = NSImage(systemSymbolName: "tray.and.arrow.down", accessibilityDescription: "NotchBar")
         }
 
         let menu = NSMenu()
         menu.addItem(NSMenuItem(title: "Clear Clipboard", action: #selector(clearClipboard), keyEquivalent: ""))
         menu.addItem(NSMenuItem(title: "Open Storage Folder", action: #selector(openStorageFolder), keyEquivalent: ""))
         menu.addItem(NSMenuItem.separator())
-        menu.addItem(NSMenuItem(title: "Quit NotchBoard", action: #selector(quitApp), keyEquivalent: "q"))
+        menu.addItem(NSMenuItem(title: "Quit NotchBar", action: #selector(quitApp), keyEquivalent: "q"))
         statusItem?.menu = menu
     }
 

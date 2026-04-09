@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Notchy — Your notch, supercharged</title>
-    <meta name="description" content="A macOS utility that turns your MacBook notch into a powerful hub with tabs for Files, Screenshots, Settings, and Screen Recording. Drop, capture, record.">
+    <title>NotchBar — Your notch, supercharged</title>
+    <meta name="description" content="A macOS utility that turns your MacBook notch into a powerful hub for files and screenshots. Drop, capture, done.">
     <link rel="icon" type="image/png" href="icon.png">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -60,13 +60,13 @@
             transition: all 0.2s ease;
         }
         .btn-primary {
-            background: var(--accent); color: #fff;
+            background: var(--accent); color: #ffffff !important;
             box-shadow: 0 4px 20px rgba(108,92,231,0.35);
         }
         .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 30px rgba(108,92,231,0.4); }
         .btn-ghost { background: transparent; color: var(--text-2); border: 1.5px solid var(--border); }
         .btn-ghost:hover { border-color: var(--accent); color: var(--accent); }
-        .btn-sm { padding: 8px 20px; font-size: 0.8rem; border-radius: 10px; }
+        .btn-sm { padding: 8px 20px; font-size: 0.8rem; border-radius: 10px; white-space: nowrap; }
 
         /* ── HERO ── */
         .hero {
@@ -86,7 +86,7 @@
             padding: 5px 6px 5px 14px; border-radius: 100px;
             background: var(--card); border: 1px solid var(--border);
             font-size: 0.78rem; font-weight: 500; color: var(--text-2);
-            margin-bottom: 32px;
+            margin: 0 auto 32px;
             box-shadow: 0 1px 4px rgba(0,0,0,0.04);
         }
         .hero-pill .tag {
@@ -217,7 +217,7 @@
             font-size: 9px; color: rgba(255,255,255,0.7);
             text-shadow: 0 1px 3px rgba(0,0,0,0.5);
         }
-        /* Notchy tray overlay */
+        /* NotchBar tray overlay */
         .notch-tray {
             position: absolute;
             top: 28px; left: 50%; transform: translateX(-50%);
@@ -494,8 +494,9 @@
         .how { padding: 100px 0; background: linear-gradient(180deg, var(--bg), #f0f0f8); }
         .how .container { text-align: center; }
         .steps-row {
-            display: grid; grid-template-columns: repeat(3, 1fr);
+            display: grid; grid-template-columns: repeat(2, 1fr);
             gap: 24px; margin-top: 56px;
+            max-width: 600px; margin-left: auto; margin-right: auto;
             position: relative;
         }
         .steps-row::before {
@@ -535,9 +536,9 @@
         }
         .pricing-grid {
             display: grid;
-            grid-template-columns: repeat(2, 1fr);
+            grid-template-columns: 1fr;
             gap: 24px;
-            max-width: 780px;
+            max-width: 400px;
             margin: 0 auto;
         }
         .pricing-card {
@@ -545,7 +546,7 @@
             border: 1.5px solid var(--border);
             border-radius: 22px;
             padding: 40px 32px 36px;
-            text-align: left;
+            text-align: center;
             position: relative;
             transition: all 0.25s ease;
         }
@@ -582,6 +583,7 @@
         .pricing-price {
             display: flex;
             align-items: baseline;
+            justify-content: center;
             gap: 6px;
             margin-bottom: 6px;
         }
@@ -609,6 +611,7 @@
         .pricing-features li {
             display: flex;
             align-items: flex-start;
+            justify-content: center;
             gap: 10px;
             font-size: 0.88rem;
             color: var(--text);
@@ -674,7 +677,7 @@
             position: relative; z-index: 1;
         }
         .cta-card .btn-primary {
-            background: #fff; color: var(--accent);
+            background: #fff; color: #0f0f1a !important;
             box-shadow: 0 4px 20px rgba(0,0,0,0.2);
             position: relative; z-index: 1;
         }
@@ -737,8 +740,8 @@
 <nav>
     <div class="container">
         <a href="#" class="nav-brand">
-            <img src="icon.png" alt="Notchy">
-            Notchy
+            <img src="icon.png" alt="NotchBar">
+            NotchBar
         </a>
         <div class="nav-links">
             <a href="#features">Features</a>
@@ -752,21 +755,16 @@
 <!-- HERO -->
 <section class="hero">
     <div class="container">
-        <div class="hero-pill fade-up">
-            Free &middot; Open Source
-            <span class="tag">v2.0</span>
-        </div>
-
-        <div class="hero-icon-wrap fade-up">
-            <img src="icon.png" alt="Notchy" class="hero-icon">
+        <div class="hero-icon-wrap fade-up" style="display:flex;justify-content:center;">
+            <img src="icon.png" alt="NotchBar" class="hero-icon">
         </div>
 
         <h1 class="fade-up">Your notch,<br><span class="gr">supercharged.</span></h1>
 
-        <p class="fade-up">Files, screenshots, screen recording &mdash; all living in your MacBook notch. Drop, capture, record.</p>
+        <p class="fade-up">Files and screenshots &mdash; all living in your MacBook notch. Drop, capture, done.</p>
 
         <div class="hero-btns fade-up">
-            <a href="#download" class="btn btn-primary">
+            <a href="NotchBar.dmg" class="btn btn-primary" download>
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
                 Download for Mac
             </a>
@@ -800,7 +798,7 @@
                     </div>
                 </div>
                 <div class="macbook-desktop">
-                    <!-- Notchy tray expanded -->
+                    <!-- NotchBar tray expanded -->
                     <div class="notch-tray">
                         <!-- Tab bar -->
                         <div class="tray-tabs">
@@ -867,7 +865,7 @@
 <section class="video-showcase" id="video">
     <div class="container">
         <span class="section-tag">See it in action</span>
-        <h2 class="section-h2 fade-up">Watch Notchy in action</h2>
+        <h2 class="section-h2 fade-up">Watch NotchBar in action</h2>
         <div style="height: 20px;"></div>
         <div class="video-container fade-up">
             <video id="demo-video" controls poster="demo-poster.png" src="demo.mp4" preload="metadata"></video>
@@ -879,7 +877,7 @@
                 </div>
             </div>
         </div>
-        <p class="video-caption fade-up">Drop files, capture screenshots, record your screen &mdash; all from the notch.</p>
+        <p class="video-caption fade-up">Drop files and capture screenshots &mdash; all from the notch.</p>
     </div>
 </section>
 
@@ -888,7 +886,7 @@
     <div class="container">
         <span class="section-tag">Features</span>
         <h2 class="section-h2 fade-up">Everything lives in the notch.</h2>
-        <p class="section-sub fade-up">Notchy turns the dead space on your MacBook into a powerful, tabbed productivity hub.</p>
+        <p class="section-sub fade-up">NotchBar turns the dead space on your MacBook into a powerful, tabbed productivity hub.</p>
         <div class="feat-grid">
             <div class="feat-card fade-up">
                 <div class="feat-emoji">📦</div>
@@ -898,12 +896,7 @@
             <div class="feat-card fade-up">
                 <div class="feat-emoji">📸</div>
                 <h3>Auto-capture screenshots</h3>
-                <p>Notchy automatically detects new screenshots and pulls them into the Screenshots tab. No manual dragging needed.</p>
-            </div>
-            <div class="feat-card fade-up">
-                <div class="feat-emoji">🎥</div>
-                <h3>Screen recording</h3>
-                <p>Record your screen with system audio and microphone input, even while wearing headphones. One click from the notch.</p>
+                <p>NotchBar automatically detects new screenshots and pulls them into the Screenshots tab. No manual dragging needed.</p>
             </div>
             <div class="feat-card fade-up">
                 <div class="feat-emoji">📑</div>
@@ -928,8 +921,8 @@
 <section class="how" id="how">
     <div class="container">
         <span class="section-tag">How it works</span>
-        <h2 class="section-h2 fade-up">Three ways to use your notch.</h2>
-        <p class="section-sub fade-up" style="margin-left:auto;margin-right:auto;">Hover, drop, record. That's the whole workflow.</p>
+        <h2 class="section-h2 fade-up">Two ways to use your notch.</h2>
+        <p class="section-sub fade-up" style="margin-left:auto;margin-right:auto;">Hover and drop. That's the whole workflow.</p>
         <div class="steps-row">
             <div class="step-card fade-up">
                 <div class="step-num">1</div>
@@ -943,12 +936,6 @@
                 <h3>Drop files or take screenshots</h3>
                 <p>Drag any file into the tray, or take a screenshot — it appears in its tab automatically.</p>
             </div>
-            <div class="step-card fade-up">
-                <div class="step-num">3</div>
-                <div class="step-icon">🔴</div>
-                <h3>Record your screen</h3>
-                <p>Hit record in the tray to capture your screen with system and mic audio. Everything saved to the notch.</p>
-            </div>
         </div>
     </div>
 </section>
@@ -958,11 +945,10 @@
     <div class="container">
         <span class="section-tag">Pricing</span>
         <h2 class="section-h2 fade-up">Simple, honest pricing</h2>
-        <p class="section-sub fade-up" style="margin-left:auto;margin-right:auto;">Start free. Upgrade when you want more.</p>
+        <p class="section-sub fade-up" style="margin-left:auto;margin-right:auto;">Completely free. No catch.</p>
         <div class="pricing-grid">
-            <!-- Free Tier -->
-            <div class="pricing-card fade-up">
-                <h3>Notchy Free</h3>
+            <div class="pricing-card pro fade-up">
+                <h3>NotchBar</h3>
                 <div class="pricing-price">
                     <span class="amount">$0</span>
                 </div>
@@ -973,24 +959,7 @@
                     <li>Configurable auto-clear timer</li>
                     <li>Tabbed interface (Files, Screenshots, Settings)</li>
                 </ul>
-                <a href="#download" class="btn btn-ghost">Download Free</a>
-            </div>
-            <!-- Pro Tier -->
-            <div class="pricing-card pro fade-up">
-                <div class="pricing-badge">MOST POPULAR</div>
-                <h3>Notchy Pro</h3>
-                <div class="pricing-price">
-                    <span class="amount">$5</span>
-                </div>
-                <p class="pricing-period">one-time</p>
-                <ul class="pricing-features">
-                    <li>Everything in Free</li>
-                    <li>Screen recording with system audio</li>
-                    <li>Microphone audio capture</li>
-                    <li>Recording history & management</li>
-                    <li>Priority updates</li>
-                </ul>
-                <a href="#download" class="btn btn-primary">Get Pro</a>
+                <a href="NotchBar.dmg" class="btn btn-primary" download>Download Free</a>
             </div>
         </div>
     </div>
@@ -1000,10 +969,10 @@
 <section class="cta" id="download">
     <div class="container">
         <div class="cta-card fade-up">
-            <img src="icon.png" alt="Notchy" class="cta-icon">
+            <img src="icon.png" alt="NotchBar" class="cta-icon">
             <h2>Ready to supercharge your notch?</h2>
-            <p>Start free, upgrade to Pro for screen recording.</p>
-            <a href="#download" class="btn btn-primary">
+            <p>Free forever. No sign-up required.</p>
+            <a href="NotchBar.dmg" class="btn btn-primary" download>
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
                 Download for Mac
             </a>

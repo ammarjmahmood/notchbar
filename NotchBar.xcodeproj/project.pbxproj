@@ -7,7 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		A10001 /* NotchBoardApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20001 /* NotchBoardApp.swift */; };
+		A10001 /* NotchBarApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20001 /* NotchBarApp.swift */; };
 		A10002 /* NotchWindow.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20002 /* NotchWindow.swift */; };
 		A10003 /* NotchViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20003 /* NotchViewModel.swift */; };
 		A10004 /* NotchContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20004 /* NotchContentView.swift */; };
@@ -20,11 +20,10 @@
 		A10011 /* SettingsManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20011 /* SettingsManager.swift */; };
 		A10012 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20012 /* SettingsView.swift */; };
 		A10013 /* ScreenshotWatcher.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20013 /* ScreenshotWatcher.swift */; };
-		A10014 /* ScreenRecorder.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20014 /* ScreenRecorder.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		A20001 /* NotchBoardApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotchBoardApp.swift; sourceTree = "<group>"; };
+		A20001 /* NotchBarApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotchBarApp.swift; sourceTree = "<group>"; };
 		A20002 /* NotchWindow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotchWindow.swift; sourceTree = "<group>"; };
 		A20003 /* NotchViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotchViewModel.swift; sourceTree = "<group>"; };
 		A20004 /* NotchContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotchContentView.swift; sourceTree = "<group>"; };
@@ -34,13 +33,12 @@
 		A20008 /* DragDetector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DragDetector.swift; sourceTree = "<group>"; };
 		A20009 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		A20010 /* ClipboardItemView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClipboardItemView.swift; sourceTree = "<group>"; };
-		A20099 /* NotchBoard.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = NotchBoard.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		A20100 /* NotchBoard.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = NotchBoard.entitlements; sourceTree = "<group>"; };
+		A20099 /* NotchBar.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = NotchBar.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		A20100 /* NotchBar.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = NotchBar.entitlements; sourceTree = "<group>"; };
 		A20101 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		A20011 /* SettingsManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsManager.swift; sourceTree = "<group>"; };
 		A20012 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		A20013 /* ScreenshotWatcher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScreenshotWatcher.swift; sourceTree = "<group>"; };
-		A20014 /* ScreenRecorder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScreenRecorder.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -57,17 +55,17 @@
 		A40001 = {
 			isa = PBXGroup;
 			children = (
-				A40002 /* NotchBoard */,
+				A40002 /* NotchBar */,
 				A40003 /* Products */,
 			);
 			sourceTree = "<group>";
 		};
-		A40002 /* NotchBoard */ = {
+		A40002 /* NotchBar */ = {
 			isa = PBXGroup;
 			children = (
 				A20101 /* Info.plist */,
-				A20100 /* NotchBoard.entitlements */,
-				A20001 /* NotchBoardApp.swift */,
+				A20100 /* NotchBar.entitlements */,
+				A20001 /* NotchBarApp.swift */,
 				A20002 /* NotchWindow.swift */,
 				A20003 /* NotchViewModel.swift */,
 				A20004 /* NotchContentView.swift */,
@@ -79,16 +77,15 @@
 				A20011 /* SettingsManager.swift */,
 				A20012 /* SettingsView.swift */,
 				A20013 /* ScreenshotWatcher.swift */,
-				A20014 /* ScreenRecorder.swift */,
 				A20009 /* Assets.xcassets */,
 			);
-			path = NotchBoard;
+			path = NotchBar;
 			sourceTree = "<group>";
 		};
 		A40003 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				A20099 /* NotchBoard.app */,
+				A20099 /* NotchBar.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -96,9 +93,9 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		A50001 /* NotchBoard */ = {
+		A50001 /* NotchBar */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = A70001 /* Build configuration list for PBXNativeTarget "NotchBoard" */;
+			buildConfigurationList = A70001 /* Build configuration list for PBXNativeTarget "NotchBar" */;
 			buildPhases = (
 				A60001 /* Sources */,
 				A30001 /* Frameworks */,
@@ -108,9 +105,9 @@
 			);
 			dependencies = (
 			);
-			name = NotchBoard;
-			productName = NotchBoard;
-			productReference = A20099 /* NotchBoard.app */;
+			name = NotchBar;
+			productName = NotchBar;
+			productReference = A20099 /* NotchBar.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
@@ -128,7 +125,7 @@
 					};
 				};
 			};
-			buildConfigurationList = A70003 /* Build configuration list for PBXProject "NotchBoard" */;
+			buildConfigurationList = A70003 /* Build configuration list for PBXProject "NotchBar" */;
 			compatibilityVersion = "Xcode 14.0";
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
@@ -141,7 +138,7 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				A50001 /* NotchBoard */,
+				A50001 /* NotchBar */,
 			);
 		};
 /* End PBXProject section */
@@ -162,7 +159,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				A10001 /* NotchBoardApp.swift in Sources */,
+				A10001 /* NotchBarApp.swift in Sources */,
 				A10002 /* NotchWindow.swift in Sources */,
 				A10003 /* NotchViewModel.swift in Sources */,
 				A10004 /* NotchContentView.swift in Sources */,
@@ -174,7 +171,6 @@
 				A10011 /* SettingsManager.swift in Sources */,
 				A10012 /* SettingsView.swift in Sources */,
 				A10013 /* ScreenshotWatcher.swift in Sources */,
-				A10014 /* ScreenRecorder.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -234,11 +230,11 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CODE_SIGN_ENTITLEMENTS = NotchBoard/NotchBoard.entitlements;
+				CODE_SIGN_ENTITLEMENTS = NotchBar/NotchBar.entitlements;
 				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 2;
 				DEVELOPMENT_TEAM = 6565NDQS5B;
 				ENABLE_APP_SANDBOX = NO;
 				ENABLE_FILE_ACCESS_DOWNLOADS_FOLDER = readwrite;
@@ -256,8 +252,8 @@
 				ENABLE_RESOURCE_ACCESS_PRINTING = NO;
 				ENABLE_RESOURCE_ACCESS_USB = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = NotchBoard/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = NotchBoard;
+				INFOPLIST_FILE = NotchBar/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = NotchBar;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
 				INFOPLIST_KEY_LSUIElement = YES;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright © 2025 Ammar Mahmood. All rights reserved.";
@@ -265,8 +261,8 @@
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				MARKETING_VERSION = 1.0.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.ammar.NotchBoard;
+				MARKETING_VERSION = 1.1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.ammar.NotchDrop";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
@@ -278,11 +274,11 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CODE_SIGN_ENTITLEMENTS = NotchBoard/NotchBoard.entitlements;
+				CODE_SIGN_ENTITLEMENTS = NotchBar/NotchBar.entitlements;
 				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 2;
 				DEVELOPMENT_TEAM = 6565NDQS5B;
 				ENABLE_APP_SANDBOX = NO;
 				ENABLE_FILE_ACCESS_DOWNLOADS_FOLDER = readwrite;
@@ -300,8 +296,8 @@
 				ENABLE_RESOURCE_ACCESS_PRINTING = NO;
 				ENABLE_RESOURCE_ACCESS_USB = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = NotchBoard/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = NotchBoard;
+				INFOPLIST_FILE = NotchBar/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = NotchBar;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
 				INFOPLIST_KEY_LSUIElement = YES;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright © 2025 Ammar Mahmood. All rights reserved.";
@@ -309,8 +305,8 @@
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				MARKETING_VERSION = 1.0.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.ammar.NotchBoard;
+				MARKETING_VERSION = 1.1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.ammar.NotchDrop";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
@@ -320,7 +316,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		A70001 /* Build configuration list for PBXNativeTarget "NotchBoard" */ = {
+		A70001 /* Build configuration list for PBXNativeTarget "NotchBar" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				A90003 /* Debug */,
@@ -329,7 +325,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		A70003 /* Build configuration list for PBXProject "NotchBoard" */ = {
+		A70003 /* Build configuration list for PBXProject "NotchBar" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				A90001 /* Debug */,

@@ -1,5 +1,4 @@
 {
-  "rootDirectory": "website",
   "buildCommand": null,
-  "outputDirectory": "."
+  "outputDirectory": "website"
 }

@@ -5,6 +5,7 @@ struct ClipboardItemView: View {
     let item: ClipboardItem
     let onCopy: () -> Void
     let onRemove: () -> Void
+    @ObservedObject var viewModel: NotchViewModel
 
     @State private var isHovering = false
 
@@ -63,6 +64,11 @@ struct ClipboardItemView: View {
             onCopy()
         }
         .onDrag {
+            viewModel.isDraggingFromNotch = true
+            // Monitor when the drag ends by observing the pasteboard
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                self.monitorDragEnd()
+            }
             if let url = item.url {
                 if let provider = NSItemProvider(contentsOf: url) {
                     provider.suggestedName = url.lastPathComponent
@@ -75,6 +81,21 @@ struct ClipboardItemView: View {
             return NSItemProvider()
         }
         .help("Click to copy. Drag to use elsewhere.")
+    }
+
+    private func monitorDragEnd() {
+        // Poll for mouse button release to detect drag end
+        Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true) { timer in
+            let buttons = NSEvent.pressedMouseButtons
+            if buttons & 1 == 0 {
+                // Left mouse button released — drag ended
+                timer.invalidate()
+                DispatchQueue.main.async {
+                    self.viewModel.isDraggingFromNotch = false
+                    self.viewModel.collapse()
+                }
+            }
+        }
     }
 
     private var iconName: String {
