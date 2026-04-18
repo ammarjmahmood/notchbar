@@ -94,6 +94,9 @@ class NotchViewModel: ObservableObject {
     }
 
     func handleDrop(providers: [NSItemProvider]) -> Bool {
+        // If dragging from the notch itself, ignore the drop to prevent duplicates
+        if isDraggingFromNotch { return false }
+
         var handled = false
 
         for provider in providers {

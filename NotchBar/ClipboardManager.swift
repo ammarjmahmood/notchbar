@@ -75,11 +75,22 @@ class ClipboardManager: ObservableObject {
         }
     }
 
+    /// Check if a file with the same name (or resolved path) is already in the shelf
+    func containsFile(_ url: URL) -> Bool {
+        let name = url.lastPathComponent
+        return items.contains { $0.type == .file && $0.name == name }
+    }
+
     func addFile(_ url: URL) {
+        // Prevent duplicates
+        if containsFile(url) { return }
+
         startAutoClearTimer() // Reset 10-min timer
         let destination = storageDirectory.appendingPathComponent(url.lastPathComponent)
         let finalURL: URL
         if FileManager.default.fileExists(atPath: destination.path) {
+            // Could be our own stored copy — check if it's already tracked
+            if items.contains(where: { $0.url == destination }) { return }
             let name = url.deletingPathExtension().lastPathComponent
             let ext = url.pathExtension
             let uniqueName = "\(name)_\(Int(Date().timeIntervalSince1970)).\(ext)"
@@ -94,8 +105,21 @@ class ClipboardManager: ObservableObject {
             // If copy fails, reference original
         }
 
-        let icon = NSWorkspace.shared.icon(forFile: url.path)
-        icon.size = NSSize(width: 40, height: 40)
+        // For image files, generate a real thumbnail; otherwise use the file icon
+        let icon: NSImage
+        let ext = url.pathExtension.lowercased()
+        if Self.imageExtensions.contains(ext), let nsImage = NSImage(contentsOf: url) {
+            let thumb = NSImage(size: NSSize(width: 64, height: 64))
+            thumb.lockFocus()
+            nsImage.draw(in: NSRect(x: 0, y: 0, width: 64, height: 64),
+                        from: NSRect(origin: .zero, size: nsImage.size),
+                        operation: .sourceOver, fraction: 1.0)
+            thumb.unlockFocus()
+            icon = thumb
+        } else {
+            icon = NSWorkspace.shared.icon(forFile: url.path)
+            icon.size = NSSize(width: 40, height: 40)
+        }
 
         let item = ClipboardItem(
             type: .file,
@@ -115,6 +139,9 @@ class ClipboardManager: ObservableObject {
 
     /// Save raw image data (from browser drag) as a file
     func addImageData(_ data: Data, suggestedName: String? = nil) {
+        // Prevent duplicates by name
+        if let suggestedName, items.contains(where: { $0.name == suggestedName }) { return }
+
         startAutoClearTimer()
         let name = suggestedName ?? "image_\(Int(Date().timeIntervalSince1970))"
 
@@ -189,6 +216,9 @@ class ClipboardManager: ObservableObject {
     }
 
     func addURL(_ url: URL) {
+        // Prevent duplicates
+        if items.contains(where: { $0.type == .url && $0.url == url }) { return }
+
         // Check if the URL points to an image — download it instead
         let ext = url.pathExtension.lowercased()
         let pathLower = url.absoluteString.lowercased()
@@ -214,6 +244,9 @@ class ClipboardManager: ObservableObject {
     }
 
     func addText(_ text: String) {
+        // Prevent duplicates
+        if items.contains(where: { $0.type == .text && $0.text == text }) { return }
+
         let item = ClipboardItem(
             type: .text,
             name: String(text.prefix(50)),

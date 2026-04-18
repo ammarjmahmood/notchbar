@@ -8,6 +8,13 @@ struct ClipboardItemView: View {
     @ObservedObject var viewModel: NotchViewModel
 
     @State private var isHovering = false
+    @State private var showPreview = false
+
+    private var isImageFile: Bool {
+        guard let url = item.url else { return false }
+        let ext = url.pathExtension.lowercased()
+        return ["jpg", "jpeg", "png", "gif", "webp", "bmp", "tiff", "tif", "heic", "heif", "avif"].contains(ext)
+    }
 
     var body: some View {
         VStack(spacing: 5) {
@@ -16,7 +23,14 @@ struct ClipboardItemView: View {
                     RoundedRectangle(cornerRadius: 12, style: .continuous)
                         .fill(.white.opacity(isHovering ? 0.12 : 0.07))
 
-                    if let icon = item.icon {
+                    if isImageFile, let url = item.url, let nsImage = NSImage(contentsOf: url) {
+                        // Show actual image thumbnail for image files
+                        Image(nsImage: nsImage)
+                            .resizable()
+                            .aspectRatio(contentMode: .fill)
+                            .frame(width: 64, height: 64)
+                            .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+                    } else if let icon = item.icon {
                         Image(nsImage: icon)
                             .resizable()
                             .aspectRatio(contentMode: .fit)
@@ -28,6 +42,7 @@ struct ClipboardItemView: View {
                     }
                 }
                 .frame(width: 64, height: 64)
+                .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
 
                 // Remove button
                 if isHovering {
@@ -46,6 +61,38 @@ struct ClipboardItemView: View {
                     .transition(.scale.combined(with: .opacity))
                 }
             }
+            .popover(isPresented: $showPreview, arrowEdge: .bottom) {
+                if isImageFile, let url = item.url, let nsImage = NSImage(contentsOf: url) {
+                    VStack(spacing: 8) {
+                        Image(nsImage: nsImage)
+                            .resizable()
+                            .aspectRatio(contentMode: .fit)
+                            .frame(maxWidth: 400, maxHeight: 400)
+
+                        Text(item.name)
+                            .font(.system(size: 11, weight: .medium, design: .rounded))
+                            .foregroundStyle(.secondary)
+                            .lineLimit(1)
+                            .truncationMode(.middle)
+                    }
+                    .padding(12)
+                } else {
+                    VStack(spacing: 8) {
+                        if let icon = item.icon {
+                            Image(nsImage: icon)
+                                .resizable()
+                                .aspectRatio(contentMode: .fit)
+                                .frame(width: 80, height: 80)
+                        }
+                        Text(item.name)
+                            .font(.system(size: 11, weight: .medium, design: .rounded))
+                            .foregroundStyle(.secondary)
+                            .lineLimit(3)
+                            .truncationMode(.middle)
+                    }
+                    .padding(12)
+                }
+            }
 
             Text(item.name)
                 .font(.system(size: 9, weight: .medium, design: .rounded))
@@ -62,6 +109,18 @@ struct ClipboardItemView: View {
         }
         .onTapGesture {
             onCopy()
+        }
+        .contextMenu {
+            Button("Preview") {
+                showPreview = true
+            }
+            Button("Copy") {
+                onCopy()
+            }
+            Divider()
+            Button("Remove", role: .destructive) {
+                onRemove()
+            }
         }
         .onDrag {
             viewModel.isDraggingFromNotch = true
