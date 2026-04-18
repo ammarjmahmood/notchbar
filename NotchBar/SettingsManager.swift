@@ -45,7 +45,7 @@ class SettingsManager: ObservableObject {
 
         // Storage folder
         let defaultStorage = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
-            .appendingPathComponent("NotchBoard", isDirectory: true).path
+            .appendingPathComponent("NotchBar", isDirectory: true).path
         self.storageFolderPath = defaults.string(forKey: Keys.storageFolderPath) ?? defaultStorage
 
         // Auto-clear minutes

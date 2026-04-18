@@ -1,5 +1,6 @@
 import SwiftUI
 import UniformTypeIdentifiers
+import AVFoundation
 
 struct ClipboardItem: Identifiable, Equatable {
     let id = UUID()
@@ -32,6 +33,10 @@ class ClipboardManager: ObservableObject {
 
     private static let imageExtensions: Set<String> = [
         "jpg", "jpeg", "png", "gif", "webp", "bmp", "tiff", "tif", "svg", "heic", "heif", "ico", "avif"
+    ]
+
+    private static let videoExtensions: Set<String> = [
+        "mp4", "mov", "m4v", "avi", "mkv", "webm"
     ]
 
     private var syncTimer: Timer?
@@ -105,7 +110,7 @@ class ClipboardManager: ObservableObject {
             // If copy fails, reference original
         }
 
-        // For image files, generate a real thumbnail; otherwise use the file icon
+        // For image/video files, generate a real thumbnail; otherwise use the file icon
         let icon: NSImage
         let ext = url.pathExtension.lowercased()
         if Self.imageExtensions.contains(ext), let nsImage = NSImage(contentsOf: url) {
@@ -116,6 +121,9 @@ class ClipboardManager: ObservableObject {
                         operation: .sourceOver, fraction: 1.0)
             thumb.unlockFocus()
             icon = thumb
+        } else if Self.videoExtensions.contains(ext) {
+            icon = Self.generateVideoThumbnail(url: url) ?? NSWorkspace.shared.icon(forFile: url.path)
+            icon.size = NSSize(width: 64, height: 64)
         } else {
             icon = NSWorkspace.shared.icon(forFile: url.path)
             icon.size = NSSize(width: 40, height: 40)
@@ -297,6 +305,17 @@ class ClipboardManager: ObservableObject {
             }
         }
         items.removeAll()
+    }
+
+    // Generate a thumbnail from a video file
+    static func generateVideoThumbnail(url: URL) -> NSImage? {
+        let asset = AVAsset(url: url)
+        let generator = AVAssetImageGenerator(asset: asset)
+        generator.appliesPreferredTrackTransform = true
+        generator.maximumSize = CGSize(width: 128, height: 128)
+        let time = CMTime(seconds: 1, preferredTimescale: 600)
+        guard let cgImage = try? generator.copyCGImage(at: time, actualTime: nil) else { return nil }
+        return NSImage(cgImage: cgImage, size: NSSize(width: cgImage.width, height: cgImage.height))
     }
 
     // Detect image format from raw data bytes
