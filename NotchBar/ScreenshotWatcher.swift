@@ -12,6 +12,7 @@ class ScreenshotWatcher: ObservableObject {
 
     private static let screenshotPrefixes = ["Screenshot ", "Screen Recording "]
     private static let screenshotExtensions: Set<String> = ["png", "jpg", "jpeg", "tiff", "gif", "mov", "mp4"]
+    private static let managedScreenshotFolderName = "Screenshots"
 
     init() {
         NSLog("[ScreenshotWatcher] init called")
@@ -112,10 +113,13 @@ class ScreenshotWatcher: ObservableObject {
            !urls.isEmpty { return }
 
         let imageData: Data?
+        let preferredExtension: String
         if let png = pb.data(forType: .png) {
             imageData = png
+            preferredExtension = "png"
         } else if let tiff = pb.data(forType: .tiff) {
             imageData = tiff
+            preferredExtension = "tiff"
         } else {
             return
         }
@@ -124,6 +128,11 @@ class ScreenshotWatcher: ObservableObject {
 
         NSLog("[ScreenshotWatcher] Clipboard screenshot detected")
 
+        guard let savedURL = saveClipboardScreenshot(data: data, image: nsImage, fileExtension: preferredExtension) else {
+            NSLog("[ScreenshotWatcher] Failed to persist clipboard screenshot")
+            return
+        }
+
         let thumb = NSImage(size: NSSize(width: 40, height: 40))
         thumb.lockFocus()
         nsImage.draw(in: NSRect(x: 0, y: 0, width: 40, height: 40),
@@ -131,11 +140,10 @@ class ScreenshotWatcher: ObservableObject {
                     operation: .sourceOver, fraction: 1.0)
         thumb.unlockFocus()
 
-        let timestamp = Int(Date().timeIntervalSince1970)
         let item = ClipboardItem(
             type: .file,
-            name: "Screenshot \(timestamp)",
-            url: nil,
+            name: savedURL.lastPathComponent,
+            url: savedURL,
             text: nil,
             dateAdded: Date(),
             icon: thumb
@@ -171,7 +179,53 @@ class ScreenshotWatcher: ObservableObject {
         return icon
     }
 
+    private var managedScreenshotDirectory: URL {
+        let url = settings.storageDirectory.appendingPathComponent(Self.managedScreenshotFolderName, isDirectory: true)
+        try? FileManager.default.createDirectory(at: url, withIntermediateDirectories: true)
+        return url
+    }
+
+    private func saveClipboardScreenshot(data: Data, image: NSImage, fileExtension: String) -> URL? {
+        let fileManager = FileManager.default
+        let timestamp = Self.managedScreenshotTimestamp.string(from: Date())
+        var destination = managedScreenshotDirectory.appendingPathComponent("Screenshot \(timestamp).\(fileExtension)")
+
+        if fileManager.fileExists(atPath: destination.path) {
+            destination = managedScreenshotDirectory.appendingPathComponent(
+                "Screenshot \(timestamp)-\(Int(Date().timeIntervalSince1970)).\(fileExtension)"
+            )
+        }
+
+        let dataToWrite: Data
+        if fileExtension == "png", let pngData = image.pngData {
+            dataToWrite = pngData
+        } else {
+            dataToWrite = data
+        }
+
+        do {
+            try dataToWrite.write(to: destination, options: .atomic)
+            return destination
+        } catch {
+            NSLog("[ScreenshotWatcher] Failed to write managed screenshot: %@", error.localizedDescription)
+            return nil
+        }
+    }
+
+    private func isManagedScreenshot(_ url: URL) -> Bool {
+        url.standardizedFileURL.path.hasPrefix(managedScreenshotDirectory.standardizedFileURL.path + "/")
+    }
+
+    private func removeManagedScreenshotFiles(from items: [ClipboardItem]) {
+        for item in items {
+            if let url = item.url, isManagedScreenshot(url) {
+                try? FileManager.default.removeItem(at: url)
+            }
+        }
+    }
+
     func restartWithNewFolder() {
+        removeManagedScreenshotFiles(from: screenshots)
         knownFiles.removeAll()
         screenshots.removeAll()
         snapshotExistingFiles()
@@ -179,10 +233,12 @@ class ScreenshotWatcher: ObservableObject {
     }
 
     func removeScreenshot(_ item: ClipboardItem) {
+        removeManagedScreenshotFiles(from: [item])
         screenshots.removeAll { $0.id == item.id }
     }
 
     func clearAll() {
+        removeManagedScreenshotFiles(from: screenshots)
         screenshots.removeAll()
     }
 
@@ -190,11 +246,33 @@ class ScreenshotWatcher: ObservableObject {
         let pb = NSPasteboard.general
         pb.clearContents()
         if let url = item.url {
-            pb.writeObjects([url as NSURL])
+            var objects: [NSPasteboardWriting] = [url as NSURL]
+            if let image = NSImage(contentsOf: url) {
+                objects.append(image)
+            }
+            pb.writeObjects(objects)
+        } else if let image = item.icon {
+            pb.writeObjects([image])
         }
     }
 
     deinit {
         stopWatching()
+    }
+}
+
+private extension ScreenshotWatcher {
+    static let managedScreenshotTimestamp: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "yyyy-MM-dd 'at' HH.mm.ss"
+        return formatter
+    }()
+}
+
+private extension NSImage {
+    var pngData: Data? {
+        guard let tiffData = tiffRepresentation,
+              let bitmap = NSBitmapImageRep(data: tiffData) else { return nil }
+        return bitmap.representation(using: .png, properties: [:])
     }
 }

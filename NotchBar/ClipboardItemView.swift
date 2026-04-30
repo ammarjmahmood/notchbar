@@ -173,16 +173,7 @@ struct ClipboardItemView: View {
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
                 self.monitorDragEnd()
             }
-            if let url = item.url {
-                if let provider = NSItemProvider(contentsOf: url) {
-                    provider.suggestedName = url.lastPathComponent
-                    return provider
-                }
-                return NSItemProvider(object: url as NSURL)
-            } else if let text = item.text {
-                return NSItemProvider(object: text as NSString)
-            }
-            return NSItemProvider()
+            return dragProvider() ?? NSItemProvider()
         }
         .help("Click to copy. Drag to use elsewhere.")
         .onAppear {
@@ -224,6 +215,59 @@ struct ClipboardItemView: View {
                 }
             }
         }
+    }
+
+    private func dragProvider() -> NSItemProvider? {
+        if let url = item.url {
+            if let provider = NSItemProvider(contentsOf: url) {
+                provider.suggestedName = url.lastPathComponent
+                return provider
+            }
+            return NSItemProvider(object: url as NSURL)
+        }
+
+        if let text = item.text {
+            return NSItemProvider(object: text as NSString)
+        }
+
+        guard let image = item.icon else { return nil }
+
+        if let temporaryURL = writeTemporaryDragImage(image: image, suggestedName: item.name),
+           let provider = NSItemProvider(contentsOf: temporaryURL) {
+            provider.suggestedName = temporaryURL.lastPathComponent
+            return provider
+        }
+
+        return NSItemProvider(object: image)
+    }
+
+    private func writeTemporaryDragImage(image: NSImage, suggestedName: String) -> URL? {
+        guard let pngData = pngData(for: image) else { return nil }
+
+        let baseName = suggestedName
+            .replacingOccurrences(of: "/", with: "-")
+            .replacingOccurrences(of: ":", with: "-")
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+        let fileName = baseName.isEmpty ? "Screenshot" : baseName
+
+        let tempDirectory = URL(fileURLWithPath: NSTemporaryDirectory(), isDirectory: true)
+            .appendingPathComponent("NotchBarDrag", isDirectory: true)
+        try? FileManager.default.createDirectory(at: tempDirectory, withIntermediateDirectories: true)
+
+        let tempURL = tempDirectory.appendingPathComponent("\(fileName)-\(UUID().uuidString).png")
+
+        do {
+            try pngData.write(to: tempURL, options: .atomic)
+            return tempURL
+        } catch {
+            return nil
+        }
+    }
+
+    private func pngData(for image: NSImage) -> Data? {
+        guard let tiffData = image.tiffRepresentation,
+              let bitmap = NSBitmapImageRep(data: tiffData) else { return nil }
+        return bitmap.representation(using: .png, properties: [:])
     }
 
     private var iconName: String {
