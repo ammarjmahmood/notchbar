@@ -1,4 +1,11 @@
 {
   "buildCommand": null,
-  "outputDirectory": "website"
+  "outputDirectory": "website",
+  "redirects": [
+    {
+      "source": "/NotchBar.dmg",
+      "destination": "https://github.com/ammarjmahmood/notchbar/releases/latest/download/NotchBar.dmg",
+      "permanent": true
+    }
+  ]
 }

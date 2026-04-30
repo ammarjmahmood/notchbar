@@ -25,13 +25,31 @@ NotchBar is a macOS utility that transforms the dead space around your MacBook n
 
 ### Quick Install
 
-Download and install NotchBar directly using the following command:
+Download and install NotchBar directly using the latest GitHub release:
 
 ```bash
-curl -L -O https://github.com/ammarjmahmood/notchbar/raw/main/website/NotchBar.dmg && open NotchBar.dmg
+curl -L -O https://github.com/ammarjmahmood/notchbar/releases/latest/download/NotchBar.dmg && open NotchBar.dmg
 ```
 
 Alternatively, download the latest version from the [official website](https://notchbar.vercel.app).
+
+## Releases
+
+The release pipeline is tag-based and builds the DMG automatically with GitHub Actions.
+
+```bash
+./scripts/build-dmg.sh
+git tag v1.1.1
+git push origin v1.1.1
+```
+
+Pushing a `v*` tag triggers [.github/workflows/release.yml](/Users/ammarmahmood/Documents/GitHub/NotchDrop/.github/workflows/release.yml), which:
+
+- builds `dist/NotchBar.dmg`
+- creates or updates the matching GitHub Release
+- uploads `NotchBar.dmg` and its SHA-256 checksum
+
+The website download buttons point to GitHub's latest release asset URL, so app updates do not require committing a DMG into the repo or redeploying the site just to refresh the binary.
 
 ### Development and Contribution
 
