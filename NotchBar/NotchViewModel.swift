@@ -23,6 +23,7 @@ class NotchViewModel: ObservableObject {
     @Published var dropTargeting = false
     @Published var isDraggingFromNotch = false
     @Published var selectedTab: NotchTab = .files
+    @Published var isHidden = false
 
     let clipboardManager = ClipboardManager()
     let screenshotWatcher = ScreenshotWatcher()
@@ -76,7 +77,7 @@ class NotchViewModel: ObservableObject {
 
     func expand() {
         collapseWorkItem?.cancel()
-        guard !isExpanded else { return }
+        guard !isHidden, !isExpanded else { return }
         selectedTab = .files
         withAnimation(.spring(response: 0.4, dampingFraction: 0.78, blendDuration: 0.1)) {
             isExpanded = true
@@ -86,11 +87,35 @@ class NotchViewModel: ObservableObject {
 
     func collapse() {
         collapseWorkItem?.cancel()
+        guard !isHidden else { return }
         guard !isHovering, !dropTargeting, !isDraggingOverNotch, !isDraggingFromNotch else { return }
         withAnimation(.spring(response: 0.35, dampingFraction: 0.82, blendDuration: 0.05)) {
             isExpanded = false
         }
         notchWindow?.ignoresMouseEvents = true
+    }
+
+    func setHidden(_ hidden: Bool) {
+        guard isHidden != hidden else { return }
+        isHidden = hidden
+
+        if hidden {
+            isHovering = false
+            dropTargeting = false
+            isDraggingOverNotch = false
+            isDraggingFromNotch = false
+            withAnimation(.spring(response: 0.25, dampingFraction: 0.9)) {
+                isExpanded = false
+            }
+            notchWindow?.ignoresMouseEvents = true
+            notchWindow?.orderOut(nil)
+        } else {
+            notchWindow?.orderFrontRegardless()
+        }
+    }
+
+    func toggleHidden() {
+        setHidden(!isHidden)
     }
 
     func handleDrop(providers: [NSItemProvider]) -> Bool {

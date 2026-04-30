@@ -6,6 +6,24 @@ struct SettingsView: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 14) {
+            // Hotkey
+            settingRow(label: "Hotkey", icon: "keyboard") {
+                HStack(spacing: 10) {
+                    Picker("", selection: $settings.notchbarHotkey) {
+                        ForEach(SettingsManager.NotchbarHotkey.allCases, id: \.self) { hotkey in
+                            Text(hotkey.displayName).tag(hotkey)
+                        }
+                    }
+                    .labelsHidden()
+                    .frame(width: 90)
+
+                    Toggle("Enabled", isOn: $settings.toggleNotchbarOnCommandR)
+                        .toggleStyle(.switch)
+                        .labelsHidden()
+                        .scaleEffect(0.7)
+                }
+            }
+
             // Storage Folder
             settingRow(label: "Storage Folder", icon: "folder") {
                 HStack(spacing: 8) {

@@ -1,5 +1,7 @@
 import SwiftUI
 import AppKit
+import Combine
+import ApplicationServices
 
 @main
 struct NotchBarApp: App {
@@ -17,6 +19,9 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     var viewModel: NotchViewModel!
     var dragDetector: DragDetector!
     var statusItem: NSStatusItem?
+    private let hotkeyManager = GlobalHotkeyManager()
+    private var cancellables = Set<AnyCancellable>()
+    private var didShowHotkeyPermissionAlert = false
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         viewModel = NotchViewModel()
@@ -25,6 +30,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         setupDragDetector()
         setupNotchWindow()
         setupStatusBarItem()
+        setupCommandRHotkey()
         viewModel.screenshotWatcher.start()
     }
 
@@ -102,6 +108,78 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         statusItem?.menu = menu
     }
 
+    private func setupCommandRHotkey() {
+        hotkeyManager.onHotkey = { [weak self] in
+            guard let self else { return }
+            guard SettingsManager.shared.toggleNotchbarOnCommandR else { return }
+            self.viewModel.toggleHidden()
+        }
+
+        // React to setting changes (enable/disable and hotkey choice).
+        Publishers.CombineLatest(
+            SettingsManager.shared.$toggleNotchbarOnCommandR,
+            SettingsManager.shared.$notchbarHotkey
+        )
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] enabled, choice in
+                guard let self else { return }
+                if enabled {
+                    self.configureHotkey(choice)
+                    self.startHotkeyIfPossible()
+                } else {
+                    self.hotkeyManager.stop()
+                }
+            }
+            .store(in: &cancellables)
+
+        // Ensure it's started on launch if enabled.
+        if SettingsManager.shared.toggleNotchbarOnCommandR {
+            configureHotkey(SettingsManager.shared.notchbarHotkey)
+            startHotkeyIfPossible()
+        }
+    }
+
+    private func configureHotkey(_ choice: SettingsManager.NotchbarHotkey) {
+        switch choice {
+        case .commandR:
+            hotkeyManager.hotkey = .init(
+                keyCode: 15, // R
+                requiredFlags: [.maskCommand],
+                forbiddenFlags: [.maskShift, .maskAlternate, .maskControl]
+            )
+        case .controlOptionCommandR:
+            hotkeyManager.hotkey = .init(
+                keyCode: 15, // R
+                requiredFlags: [.maskControl, .maskAlternate, .maskCommand],
+                forbiddenFlags: [.maskShift]
+            )
+        }
+    }
+
+    private func startHotkeyIfPossible() {
+        // Prompt user to grant Accessibility if needed (helps for event taps on many systems).
+        let options = [kAXTrustedCheckOptionPrompt.takeUnretainedValue() as String: true] as CFDictionary
+        _ = AXIsProcessTrustedWithOptions(options)
+
+        do {
+            try hotkeyManager.start()
+        } catch {
+            hotkeyManager.stop()
+            showHotkeyPermissionAlertOnce()
+        }
+    }
+
+    private func showHotkeyPermissionAlertOnce() {
+        guard !didShowHotkeyPermissionAlert else { return }
+        didShowHotkeyPermissionAlert = true
+
+        let alert = NSAlert()
+        alert.messageText = "Allow NotchBar to detect the hotkey"
+        alert.informativeText = "Enable NotchBar in System Settings → Privacy & Security → Input Monitoring (and Accessibility if prompted), then quit + reopen NotchBar."
+        alert.addButton(withTitle: "OK")
+        alert.runModal()
+    }
+
     @objc private func clearClipboard() {
         viewModel.clipboardManager.clearAll()
     }
@@ -113,5 +191,9 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
     @objc private func quitApp() {
         NSApp.terminate(nil)
+    }
+
+    deinit {
+        hotkeyManager.stop()
     }
 }

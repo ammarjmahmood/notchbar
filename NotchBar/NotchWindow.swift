@@ -47,6 +47,7 @@ class NotchWindow: NSPanel {
 
     private func checkMouseLocation() {
         guard let vm = viewModel, let screen = NSScreen.main else { return }
+        guard !vm.isHidden else { return }
 
         let mouse = NSEvent.mouseLocation
         let screenFrame = screen.frame

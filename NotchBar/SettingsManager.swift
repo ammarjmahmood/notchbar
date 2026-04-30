@@ -9,6 +9,22 @@ class SettingsManager: ObservableObject {
         static let autoClearMinutes = "autoClearMinutes"
         static let screenshotFolderPath = "screenshotFolderPath"
         static let launchAtLogin = "launchAtLogin"
+        static let toggleNotchbarOnCommandR = "toggleNotchbarOnCommandR"
+        static let notchbarHotkey = "notchbarHotkey"
+    }
+
+    enum NotchbarHotkey: String, CaseIterable {
+        case commandR = "commandR"
+        case controlOptionCommandR = "controlOptionCommandR"
+
+        var displayName: String {
+            switch self {
+            case .commandR:
+                return "⌘R"
+            case .controlOptionCommandR:
+                return "⌃⌥⌘R"
+            }
+        }
     }
 
     @Published var storageFolderPath: String {
@@ -28,6 +44,14 @@ class SettingsManager: ObservableObject {
             UserDefaults.standard.set(launchAtLogin, forKey: Keys.launchAtLogin)
             updateLaunchAtLogin()
         }
+    }
+
+    @Published var toggleNotchbarOnCommandR: Bool {
+        didSet { UserDefaults.standard.set(toggleNotchbarOnCommandR, forKey: Keys.toggleNotchbarOnCommandR) }
+    }
+
+    @Published var notchbarHotkey: NotchbarHotkey {
+        didSet { UserDefaults.standard.set(notchbarHotkey.rawValue, forKey: Keys.notchbarHotkey) }
     }
 
     var storageDirectory: URL {
@@ -58,6 +82,17 @@ class SettingsManager: ObservableObject {
 
         // Launch at login
         self.launchAtLogin = defaults.bool(forKey: Keys.launchAtLogin)
+
+        // Toggle NotchBar visibility on ⌘R
+        self.toggleNotchbarOnCommandR = defaults.object(forKey: Keys.toggleNotchbarOnCommandR) as? Bool ?? true
+
+        // Hotkey choice (default to safer combo)
+        if let raw = defaults.string(forKey: Keys.notchbarHotkey),
+           let choice = NotchbarHotkey(rawValue: raw) {
+            self.notchbarHotkey = choice
+        } else {
+            self.notchbarHotkey = .controlOptionCommandR
+        }
     }
 
     private static func detectScreenshotFolder() -> String {
